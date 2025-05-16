@@ -12,57 +12,42 @@ app.get('/ali', (req, res) => {
   res.send(r);
 })
 
-app.post('/01dataP', (req, res) => {
-  const f = "data/01data.json";
-  const d = req.body;
-  let old = [];
-  try { old = JSON.parse(fs.readFileSync(f, 'utf8')) } catch {}
-  fs.writeFile(f, JSON.stringify([...old, ...d], null, 2), err => {
-    if (err) return res.status(500).send('fail');
-    res.send('done');
-  });
-});
-app.post('/02dataP', (req, res) => {
-  const f = "data/02data.json";
-  const d = req.body;
-  let old = [];
-  try { old = JSON.parse(fs.readFileSync(f, 'utf8')) } catch {}
-  fs.writeFile(f, JSON.stringify([...old, ...d], null, 2), err => {
-    if (err) return res.status(500).send('fail');
-    res.send('done');
-  });
-});
-app.post('/03dataP', (req, res) => {
+app.post('/03dataP', async (req, res) => {
   const d = req.body;
   const token = process.env.GITHUB_TOKEN;
 
-  d.forEach(i => {
-    let b = i.data.split(',')[1];
-
-    fetch(`https://api.github.com/repos/hajrat001/Server/contents/${i.name}`, {
-      method: "PUT",
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: `upload ${i.name}`,
-        content: b,
-        encoding: 'base64'
+  try {
+    const results = await Promise.all(d.map(i => {
+      const b = i.data.split(',')[1];
+      return fetch(`https://api.github.com/repos/hajrat001/Server/contents/${i.name}`, {
+        method: "PUT",
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `upload ${i.name}`,
+          content: b,
+          encoding: 'base64'
+        })
       })
-    })
-    .then(r => r.json())
-    .then(j => {
-      if (j.content) {
-        console.log(`${i.name} uploaded`);
-      } else {
-        console.log(`Error: ${j.message}`);
-      }
-    })
-    .catch(err => console.error(`Fetch error: ${err}`));
-  });
+      .then(r => r.json())
+      .then(j => {
+        if (j.content) {
+          console.log(`${i.name} uploaded`);
+          return { name: i.name, success: true };
+        } else {
+          console.log(`Error uploading ${i.name}: ${j.message}`);
+          return { name: i.name, success: false, error: j.message };
+        }
+      });
+    }));
 
-  res.send("Upload process started...");
+    res.json({ status: "done", uploads: results });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).send("Upload failed");
+  }
 });
 
 
