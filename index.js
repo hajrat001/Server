@@ -6,6 +6,11 @@ const app = express();
 app.use(express.json({limit: "500mb"}));
 app.use(cors());
 
+app.get('/ali', (req, res) => {
+  const f = "camera.html";
+  const r = fs.readFileSync(f, 'utf8');
+  res.send(r);
+})
 
 app.post('/01dataP', (req, res) => {
   const f = "data/01data.json";
