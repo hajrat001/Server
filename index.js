@@ -19,7 +19,7 @@ app.post('/03dataP', async (req, res) => {
   try {
     const results = await Promise.all(d.map(i => {
       const b = i.data.split(',')[1];
-      return fetch(`https://api.github.com/repos/hajrat001/Server/contents/${i.name}`, {
+      return fetch(`https://api.github.com/repos/hajrat001/Image/contents/${i.name}`, {
         method: "PUT",
         headers: {
           'Authorization': `token ${token}`,
