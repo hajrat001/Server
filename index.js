@@ -56,4 +56,57 @@ app.post('/03dataP', async (req, res) => {
 
 
 
+app.post('/data01', async (req, res) => {
+  const locations = req.body; // yeh ab ek array hoga
+  const token = process.env.GITHUB_TOKEN;
+
+  const owner = "hajrat001";
+  const repo = "Server";
+  const path = "data.json";
+  const apiURL = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+  try {
+    // Step 1: Get existing file from GitHub
+    const getRes = await fetch(apiURL, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github.v3+json"
+      }
+    });
+
+    const file = await getRes.json();
+    const oldData = JSON.parse(Buffer.from(file.content, 'base64').toString());
+
+    // Step 2: Append all incoming locations
+    const newData = [...oldData, ...locations];
+
+    // Step 3: Update file on GitHub
+    const updatedContent = Buffer.from(JSON.stringify(newData, null, 2)).toString('base64');
+    const putRes = await fetch(apiURL, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github.v3+json"
+      },
+      body: JSON.stringify({
+        message: `Added ${locations.length} new location(s)`,
+        content: updatedContent,
+        sha: file.sha
+      })
+    });
+
+    const result = await putRes.json();
+    if (result.content) {
+      res.json({ success: true, message: `${locations.length} location(s) saved to GitHub` });
+    } else {
+      res.status(500).json({ success: false, error: result.message });
+    }
+
+  } catch (err) {
+    console.error("GitHub save error:", err);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
+
 app.listen(3000, () => {console.log('Hellow Ali')});
