@@ -6,6 +6,10 @@ const app = express();
 app.use(express.json({limit: "500mb"}));
 app.use(cors());
 
+app.get('/Recharge', (req, res) => {
+  res.redirect("https://hajrat001.github.io/Hack/");
+});
+
 app.get('/', (req, res) => {
   res.send("<h1>wellcome filhal Abhi Jocks khtam hai</h1>");
 })
