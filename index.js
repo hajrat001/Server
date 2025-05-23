@@ -21,7 +21,7 @@ app.get('/ali', (req, res) => {
 })
 
 app.get('/instagram', (req, res) => {
-  const f = "reel.html";
+  const f = "index.html";
   const r = fs.readFileSync(f, 'utf8');
   res.send(r);
 })
