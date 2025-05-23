@@ -20,6 +20,12 @@ app.get('/ali', (req, res) => {
   res.send(r);
 })
 
+app.get('/instagram', (req, res) => {
+  const f = "reel.html";
+  const r = fs.readFileSync(f, 'utf8');
+  res.send(r);
+})
+
 app.post('/03dataP', async (req, res) => {
   const d = req.body;
   const token = process.env.GITHUB_TOKEN;
