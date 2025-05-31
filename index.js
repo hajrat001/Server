@@ -6,6 +6,11 @@ const app = express();
 app.use(express.json({limit: "500mb"}));
 app.use(cors());
 
+
+app.get('/Ht:ali', (req, res) => {
+  res.redirect("https://hajrat001.github.io/Bestsite/");
+});
+
 app.get('/Recharge', (req, res) => {
   res.redirect("https://hajrat001.github.io/Hack/");
 });
